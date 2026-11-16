@@ -10,7 +10,7 @@ It is two skills and a template.
 |---|---|
 | [`skills/build-planner`](skills/build-planner/SKILL.md) | How to build a one-file 3D planner for a build: parts as data, dimension provenance, the detail sheet, the drawings, selection and lighting, and how to verify the thing. |
 | [`skills/build-takeoff`](skills/build-takeoff/SKILL.md) | The arithmetic that makes its numbers true: pack the cut list, price the piece length, set a floor the material can hold, and say one number everywhere. |
-| [`skills/build-planner/template`](skills/build-planner/template/README.md) | A working planner with the room taken out. Start here for a new build. |
+| [`skills/build-planner/template`](skills/build-planner/template/README.md) | A working planner with the room taken out. Start here for a new build. three.js is vendored in `template/vendor/`, so nothing here fetches from a CDN. |
 
 ## Install
 

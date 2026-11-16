@@ -1,10 +1,10 @@
 #!/bin/bash
 # Starts a new 3D build planner from the template: a folder with index.html, check.sh,
-# a README and a git repo, ready for GitHub Pages.
-# Usage: new-planner.sh "Garage Workbench" [~/Documents/dev]
+# a vendored three.js, a README and a git repo, ready for GitHub Pages.
+# Usage: new-planner.sh "Garage Workbench" [~/dev]
 set -eu
 title="${1:?Give the build a name, for example: new-planner.sh \"Garage Workbench\"}"
-parent="${2:-$HOME/Documents/dev}"
+parent="${2:-$HOME/dev}"
 here="$(cd "$(dirname "$0")" && pwd)"
 slug="$(printf '%s' "$title" | tr '[:upper:]' '[:lower:]' | sed -e 's/[^a-z0-9]\{1,\}/-/g' -e 's/^-//' -e 's/-$//')"
 dir="$parent/$slug-planner"
@@ -12,6 +12,7 @@ dir="$parent/$slug-planner"
 mkdir -p "$dir"
 sed -e "s/id:'alcove-shelf'/id:'$slug'/" -e "s/title:'Alcove Shelf'/title:'$title'/" "$here/build-planner.html" > "$dir/index.html"
 cp "$here/check.sh" "$dir/check.sh"
+cp -R "$here/vendor" "$dir/vendor"   # three.js is vendored, so the planner opens with no network
 cat > "$dir/README.md" <<EOF
 # $title planner
 

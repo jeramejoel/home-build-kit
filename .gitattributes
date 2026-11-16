@@ -1,0 +1,2 @@
+# Vendored library: keep it out of diffs and language stats.
+skills/build-planner/template/vendor/** linguist-vendored

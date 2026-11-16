@@ -1,6 +1,6 @@
 ---
 name: build-planner
-description: Build a single-file, zero-dependency 3D planner for a physical build (a workbench, shelving, a deck, a closet, a wall, a booth) that turns a parts list into an orbitable 3D model, a packed cut list, a shopping list and an ordered build guide, and runs on a phone at the lumberyard. Covers the file shape (one HTML file, importmap CDN, no build step), the parts-as-data model, measured-versus-assumed dimension provenance and what to do when two measurements disagree, the per-part detail sheet, assembly-manual line drawings generated from the same numbers as the model, the persistent checklist, selection and hover affordance in 3D, realistic lighting, shipping a whole-design rule behind a toggle, checking coverage by walking the surfaces, and the sweep-every-preset verification loop. Pairs with build-takeoff, which governs the arithmetic. Use when planning any home or shop build, or when a spatial problem needs a model rather than a document. Triggers "plan a build in 3D", "build planner", "workbench plan", "shelving plan", "deck plan", "closet plan", "cut sheet", "how do I lay this out", "model this room", "assembly guide", "single-file 3D", "plan my garage".
+description: Build a self-contained, zero-dependency 3D planner for a physical build (a workbench, shelving, a deck, a closet, a wall, a booth) that turns a parts list into an orbitable 3D model, a packed cut list, a shopping list and an ordered build guide, and runs on a phone at the lumberyard. Covers the file shape (one HTML file, importmap CDN, no build step), the parts-as-data model, measured-versus-assumed dimension provenance and what to do when two measurements disagree, the per-part detail sheet, assembly-manual line drawings generated from the same numbers as the model, the persistent checklist, selection and hover affordance in 3D, realistic lighting, shipping a whole-design rule behind a toggle, checking coverage by walking the surfaces, and the sweep-every-preset verification loop. Pairs with build-takeoff, which governs the arithmetic. Use when planning any home or shop build, or when a spatial problem needs a model rather than a document. Triggers "plan a build in 3D", "build planner", "workbench plan", "shelving plan", "deck plan", "closet plan", "cut sheet", "how do I lay this out", "model this room", "assembly guide", "single-file 3D", "plan my garage".
 ---
 
 # A model you can interrogate
@@ -28,18 +28,30 @@ which returns the parts as boxes. Everything below comes with it.
 
 **One HTML file. No build step, no package.json, no node_modules.**
 
-That constraint is doing real work. The file opens from disk, deploys to GitHub Pages by pushing it,
-survives being emailed to yourself, and still runs in two years when the toolchain you would have
-picked has rotted.
+That constraint is doing real work. It deploys to GitHub Pages by pushing it, survives being
+emailed to yourself, and still runs in two years when the toolchain you would have picked has
+rotted.
+
+**Vendor the library rather than reaching for a CDN.** A planner whose whole point is a phone in a
+garage or at a lumberyard cannot depend on a third party being reachable, and a pinned CDN URL is
+still someone else's uptime and someone else's decision to keep serving that path.
 
 ```html
 <script type="importmap">{"imports":{
-  "three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
-  "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+  "three":"./vendor/three/three.module.js",
+  "three/addons/":"./vendor/three/addons/"}}</script>
 ```
 
-Pin an exact version. Deploy with `gh api -X POST repos/{owner}/{repo}/pages` from `main` at the
-root, so the phone in the garage opens the same file you are editing.
+That is 1.2MB of three.js plus 29KB of OrbitControls, checked in. Whatever scaffolds a new planner
+has to copy `vendor/` with it, or every planner it makes is born broken.
+
+One caveat worth knowing before you promise "opens from disk": a `<script type="module">` will not
+load over `file://`, vendored or not, because the browser treats it as a cross-origin fetch. The 3D
+view needs a server, which is what GitHub Pages is for. The headless check sidesteps this by
+guarding the module import, so `check.sh` does run against `file://`.
+
+Deploy with `gh api -X POST repos/{owner}/{repo}/pages` from `main` at the root, so the phone in the
+garage opens the same file you are editing.
 
 ## Parts are data, geometry is derived
 
