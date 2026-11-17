@@ -113,6 +113,14 @@ Choosing 72" over 96" throws away a quarter of the material for a look. **Build 
 dimension is fixed, and put it in front of whoever is choosing.** A planner that offers preset
 dimensions should show the yield on each preset, so the choice is priced at the moment it is made.
 
+Count is a step function, so between two steps there is a free upgrade. Every piece length from
+48 5/16" to 96 3/4" buys the same 119 boards off 97" stock, because each one still yields one piece.
+Anywhere inside a band, cut the tallest the design allows: it costs nothing and the offcut shrinks.
+Give the output the band, not just the current number, or the reader has to find it by trial:
+
+> 1 piece per board up to 96 3/4". At 72" that leaves 25.6% of each board unused, and no band taller
+> than 48 5/16" costs fewer than 119 boards, so cut the tallest the room allows.
+
 Two warnings:
 
 - **Confirm the real stock length before trusting a margin.** Nominal 8 ft is often exactly 96", and
@@ -143,6 +151,12 @@ const GRID_MIN = MIN_RIP;   // not a second, looser floor
 The mirror image is just as wasteful: a piece an eighth under full width consumes a whole board to
 remove almost nothing, and it is a fussy cut. Push that eighth into a gap or a reveal where nobody
 will find it.
+
+**A floor applies to length as much as to width.** The dimension nobody sets a floor on is the short
+crosscut. A 1 7/8" rail is arithmetically fine and comes off a miter saw with no room for a hand and
+no room for a clamp. Set a minimum safe crosscut alongside the minimum rip, and when a part lands
+under it, say which process changes rather than changing the design behind the reader's back: cut it
+on a sled from a longer offcut, or let the neighbouring part carry it.
 
 Enforcing a floor always costs something, usually a wider gap or reveal somewhere. **Say so in the
 output.** When a plan stopped producing slivers it started leaving 1 3/8" of extra reveal across two

@@ -24,6 +24,7 @@
 html,body{margin:0;height:100%;height:100dvh;overflow:hidden;background:var(--bg);font:14px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--ink);overscroll-behavior:none}
 #c{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none}
 button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px;border-radius:6px}
 /* header */
 #hdr{position:fixed;top:0;left:0;right:0;height:calc(var(--hdr) + var(--st));padding:var(--st) calc(10px + var(--sr)) 0 calc(10px + var(--sl));display:flex;align-items:center;gap:8px;background:var(--card);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);z-index:9}
 #hdr h1{font-size:14px;margin:0;font-weight:800;white-space:nowrap}
@@ -34,7 +35,7 @@ button{font:inherit;color:inherit}
 #hdrNav button.on{background:var(--ink);color:#fff}
 #warnPill{flex:0 0 auto;display:none;border:0;border-radius:999px;padding:6px 10px;font-weight:700;font-size:11.5px;cursor:pointer;color:#fff;background:var(--warn)}
 #warnPill.bad{background:var(--bad)}
-@media (max-width:520px){#hdr h1{display:none}#hdrNav button{padding:7px 8px}.long{display:none}.short{display:inline!important}#botbar{gap:4px;padding-left:calc(8px + var(--sl));padding-right:calc(8px + var(--sr))}#botbar button.mode{padding:0 7px;font-size:9.5px}}
+@media (max-width:520px){#hdr h1{display:none}#hdrNav button{padding:7px 8px}.long{display:none}.short{display:inline!important}#botbar{gap:4px;padding-left:calc(8px + var(--sl));padding-right:calc(8px + var(--sr))}#botbar button.mode{padding:0 6px;font-size:11px;letter-spacing:0}}
 .short{display:none}
 #ctrlBtn{flex:0 0 auto;border:0;background:var(--ink);color:#fff;border-radius:9px;padding:8px 13px;font-weight:700;font-size:12.5px;cursor:pointer;min-height:34px}
 /* view chips */
@@ -45,7 +46,7 @@ button{font:inherit;color:inherit}
 /* bottom bar */
 #botbar{position:fixed;left:0;right:0;bottom:0;height:calc(var(--bot) + var(--sb));padding:0 calc(12px + var(--sr)) var(--sb) calc(12px + var(--sl));display:flex;align-items:center;gap:6px;background:var(--card);backdrop-filter:blur(8px);border-top:1px solid var(--line);z-index:8;overflow-x:auto}
 #botbar button{flex:0 0 auto;border:0;background:var(--soft);border-radius:8px;min-width:34px;height:34px;font-size:16px;font-weight:700;cursor:pointer;padding:0 9px}
-#botbar button.mode{font-size:10px;letter-spacing:.04em}
+#botbar button.mode{font-size:11.5px;letter-spacing:.03em}
 #botbar button.on{background:var(--ink);color:#fff}
 #botbar .sep{flex:1}
 #legend{position:fixed;left:calc(12px + var(--sl));right:calc(12px + var(--sr));top:calc(var(--hdr) + var(--st) + var(--views) + 4px);z-index:5;pointer-events:none;font-size:12px;color:var(--mut);transition:opacity .6s}
@@ -53,7 +54,8 @@ button{font:inherit;color:inherit}
 #legend b{color:var(--ink)}
 #legend.fade{opacity:0}
 /* tray (a tapped part) and controls: side rail on desktop, bottom sheet on a phone */
-.drawer{position:fixed;z-index:10;background:#fff;display:flex;flex-direction:column;box-shadow:0 6px 32px #0003;transition:transform .22s cubic-bezier(.16,1,.3,1);-webkit-user-select:text;user-select:text}
+.drawer{position:fixed;z-index:10;background:#fff;display:flex;flex-direction:column;box-shadow:0 6px 32px #0003;-webkit-user-select:text;user-select:text}
+@media (prefers-reduced-motion: no-preference){.drawer{transition:transform .22s cubic-bezier(.16,1,.3,1)}}
 @media (min-width:760px){.drawer{top:calc(var(--hdr) + var(--st) + 10px);right:calc(10px + var(--sr));width:380px;max-height:calc(100dvh - var(--hdr) - var(--st) - var(--bot) - var(--sb) - 20px);border-radius:14px;transform:translateX(calc(100% + 30px))}}
 @media (max-width:759px){.drawer{left:0;right:0;bottom:0;max-height:78dvh;border-radius:18px 18px 0 0;padding-bottom:var(--sb);transform:translateY(105%)}}
 .drawer.open{transform:none}
@@ -234,7 +236,9 @@ function frac(v,den){const r=Math.round(v*den)/den,neg=r<0,a=Math.abs(r),wh=Math
   if(fr){const g=gcd(fr,den);s+=(s?' ':'')+(fr/g)+'/'+(den/g);}return (neg?'-':'')+(s||'0')+'"';}
 const fIn=v=>frac(v,8), fIn16=v=>frac(v,16);
 function fFt(v){if(Math.abs(v)<24)return fIn(v);const ft=Math.floor((v+1e-6)/12);return ft+"' "+fIn(v-ft*12);}
-const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+/* Quotes too. Build names carry inches ('Full 90"'), and an unescaped quote ends the
+   attribute it sits in, which silently turned every preset button into a dead button. */
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 const store={get(k,d){try{const v=localStorage.getItem(ITEM.id+'.'+k);return v?JSON.parse(v):d;}catch(e){return d;}},
   set(k,v){try{localStorage.setItem(ITEM.id+'.'+k,JSON.stringify(v));}catch(e){}}};
 
@@ -464,10 +468,20 @@ const badge=src=>`<span class="badge b-${src}">${src}</span>`;
 
 /* ---------- controls panel: presets, the item's controls, and the dims with where they came from ---------- */
 function panelWarns(){const el=document.getElementById('panelWarns');if(el)el.innerHTML=wList(allWarns());}
+/* Which preset you are on, if any. A preset is a named set of settings, so you are on it
+   only when every setting matches it laid over the defaults. Drag one slider and you are
+   on none of them, and the row has to say so rather than keep a button lit. */
+function presetState(name){return {...ITEM.defaults,...(name==='Default'?{}:(ITEM.presets||{})[name]||{})};}
+/* Named presets are checked before Default, so a preset that happens to equal the defaults
+   lights its own name and not two buttons at once. */
+function activePreset(){
+  return [...Object.keys(ITEM.presets||{}),'Default'].find(nm=>{
+    const P=presetState(nm);return Object.keys(P).every(k=>String(S[k])===String(P[k]));})||null;}
 function renderPanel(){
   const body=document.getElementById('panelBody');
+  const act=activePreset();
   let h='';
-  if(ITEM.presets)h+=`<div class="sec"><h3>Presets</h3><div class="seg" id="presetSeg">${Object.keys(ITEM.presets).map(p=>`<button data-p="${esc(p)}">${esc(p)}</button>`).join('')}</div></div>`;
+  if(ITEM.presets)h+=`<div class="sec"><h3>Presets</h3><div class="seg" id="presetSeg">${['Default',...Object.keys(ITEM.presets)].map(p=>`<button data-p="${esc(p)}" class="${act===p?'on':''}">${esc(p)}</button>`).join('')}</div>${act?'':'<p class="hint">Changed by hand. Pick a preset to go back to a known set.</p>'}</div>`;
   let inSec=false;
   ITEM.controls.forEach(c=>{
     if(c.sec){h+=(inSec?'</div>':'')+`<div class="sec"><h3>${esc(c.sec)}</h3>`;inSec=true;return;}
@@ -482,7 +496,7 @@ function renderPanel(){
     <p><button class="btn" id="dimCopy">Copy dims as code</button> <button class="btn" id="dimReset"${edits?'':' disabled'}>Forget edits</button></p></div>`;
   h+=`<div class="sec"><h3>Warnings</h3><div id="panelWarns">${wList(allWarns())}</div></div>`;
   body.innerHTML=h;
-  body.querySelectorAll('#presetSeg button').forEach(b=>b.onclick=()=>{Object.assign(S,ITEM.defaults,ITEM.presets[b.dataset.p]);rebuildPanel();});
+  body.querySelectorAll('#presetSeg button').forEach(b=>b.onclick=()=>{Object.assign(S,presetState(b.dataset.p));rebuildPanel();});
   body.querySelectorAll('input[type=range][data-k]').forEach(i=>i.oninput=()=>{S[i.dataset.k]=+i.value;i.previousElementSibling.querySelector('output').textContent=(ITEM.controls.find(c=>c.key===i.dataset.k).fmt||fBoth)(+i.value);requestRebuild();});
   body.querySelectorAll('input[type=checkbox][data-k]').forEach(i=>i.onchange=()=>{S[i.dataset.k]=i.checked;rebuildPanel();});
   body.querySelectorAll('.seg button[data-k]').forEach(b=>b.onclick=()=>{S[b.dataset.k]=b.dataset.v;rebuildPanel();});
